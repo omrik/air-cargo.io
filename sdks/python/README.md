@@ -5,7 +5,11 @@ Official Python client for the [air-cargo.io](https://www.air-cargo.io) air carg
 ## Installation
 
 ```bash
+# From PyPI (when available)
 pip install airack
+
+# Or directly from GitHub
+pip install git+https://github.com/omrik/air-cargo.io.git#subdirectory=sdks/python
 ```
 
 ## Quickstart
