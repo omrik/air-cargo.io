@@ -1,0 +1,58 @@
+{
+  "name": "Airtrack - Status Change Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "airtrack-webhook",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Airtrack Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.new_status }}",
+              "operation": "equal",
+              "value2": "EXCEPTION"
+            }
+          ]
+        }
+      },
+      "id": "filter-exception",
+      "name": "Is Exception?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@air-cargo.io",
+        "toEmail": "={{ $json.body.recipient_email }}",
+        "subject": "Airtrack Alert: Shipment {{ $json.body.awb }}",
+        "text": "Shipment {{ $json.body.awb }} has exception status.\n\nNew status: {{ $json.body.new_status }}\nPrevious status: {{ $json.body.old_status }}\nTimestamp: {{ $json.body.timestamp }}"
+      },
+      "id": "email-alert",
+      "name": "Send Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [650, 200]
+    }
+  ],
+  "connections": {
+    "Airtrack Webhook": {
+      "main": [[{ "node": "Is Exception?", "type": "main", "index": 0 }]]
+    },
+    "Is Exception?": {
+      "main": [
+        [{ "node": "Send Email Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}

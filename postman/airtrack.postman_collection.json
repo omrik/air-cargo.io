@@ -1,0 +1,207 @@
+{
+  "info": {
+    "name": "Airtrack API",
+    "description": "REST API for air cargo tracking. Create shipments, get tracking events, manage webhooks, and more.\n\nAuthentication: Add `Authorization: Bearer <token>` header to all requests except auth endpoints.\n\nBase URL: https://www.air-cargo.io/api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"your-password\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\"\n}"},
+            "url": {"raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"]}
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"your-password\"\n}"},
+            "url": {"raw": "{{base_url}}/auth/login", "host": ["{{base_url}}"], "path": ["auth", "login"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shipments",
+      "item": [
+        {
+          "name": "List Shipments",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": {"raw": "{{base_url}}/shipments/?page=1&limit=20", "host": ["{{base_url}}"], "path": ["shipments"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "20"}]}
+          }
+        },
+        {
+          "name": "Create Shipment",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"awb\": \"235-12345678\"\n}"},
+            "url": {"raw": "{{base_url}}/shipments/", "host": ["{{base_url}}"], "path": ["shipments"]}
+          }
+        },
+        {
+          "name": "Batch Create",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"awbs\": [\"235-12345678\", \"176-87654321\"]\n}"},
+            "url": {"raw": "{{base_url}}/shipments/batch", "host": ["{{base_url}}"], "path": ["shipments", "batch"]}
+          }
+        },
+        {
+          "name": "Get Shipment",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": {"raw": "{{base_url}}/shipments/{{shipment_id}}", "host": ["{{base_url}}"], "path": ["shipments", "{{shipment_id}}"]}
+          }
+        },
+        {
+          "name": "Update Shipment",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"origin\": \"IST\",\n  \"destination\": \"JFK\"\n}"},
+            "url": {"raw": "{{base_url}}/shipments/{{shipment_id}}", "host": ["{{base_url}}"], "path": ["shipments", "{{shipment_id}}"]}
+          }
+        },
+        {
+          "name": "Delete Shipment",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": {"raw": "{{base_url}}/shipments/{{shipment_id}}", "host": ["{{base_url}}"], "path": ["shipments", "{{shipment_id}}"]}
+          }
+        },
+        {
+          "name": "Export Shipments",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": {"raw": "{{base_url}}/shipments/export?format=csv", "host": ["{{base_url}}"], "path": ["shipments", "export"], "query": [{"key": "format", "value": "csv"}]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tracking",
+      "item": [
+        {
+          "name": "Trigger Tracking",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": {"raw": "{{base_url}}/tracking/?shipment_id={{shipment_id}}", "host": ["{{base_url}}"], "path": ["tracking"], "query": [{"key": "shipment_id", "value": "{{shipment_id}}"}]}
+          }
+        },
+        {
+          "name": "Get Tracking Events",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": {"raw": "{{base_url}}/tracking/{{shipment_id}}", "host": ["{{base_url}}"], "path": ["tracking", "{{shipment_id}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Webhooks",
+      "item": [
+        {
+          "name": "Create Webhook",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"url\": \"https://your-server.com/webhook\",\n  \"events\": [\"status_change\"]\n}"},
+            "url": {"raw": "{{base_url}}/webhooks/", "host": ["{{base_url}}"], "path": ["webhooks"]}
+          }
+        },
+        {
+          "name": "List Webhooks",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": {"raw": "{{base_url}}/webhooks/", "host": ["{{base_url}}"], "path": ["webhooks"]}
+          }
+        },
+        {
+          "name": "Delete Webhook",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}],
+            "url": {"raw": "{{base_url}}/webhooks/{{webhook_id}}", "host": ["{{base_url}}"], "path": ["webhooks", "{{webhook_id}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/account/", "host": ["{{base_url}}"], "path": ["account"]}}
+        },
+        {
+          "name": "Create API Key",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"name\": \"my-key\"\n}"},
+            "url": {"raw": "{{base_url}}/account/api-keys", "host": ["{{base_url}}"], "path": ["account", "api-keys"]}
+          }
+        },
+        {
+          "name": "List API Keys",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/account/api-keys", "host": ["{{base_url}}"], "path": ["account", "api-keys"]}}
+        }
+      ]
+    },
+    {
+      "name": "Carriers",
+      "item": [
+        {
+          "name": "List Carriers",
+          "request": {"method": "GET", "header": [{"key": "Authorization", "value": "Bearer {{token}}"}], "url": {"raw": "{{base_url}}/carriers/", "host": ["{{base_url}}"], "path": ["carriers"]}}
+        }
+      ]
+    },
+    {
+      "name": "Integrations",
+      "item": [
+        {
+          "name": "Set Slack Webhook",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Authorization", "value": "Bearer {{token}}"}, {"key": "Content-Type", "value": "application/json"}],
+            "body": {"mode": "raw", "raw": "{\n  \"url\": \"https://hooks.slack.com/services/...\"\n}"},
+            "url": {"raw": "{{base_url}}/integrations/slack", "host": ["{{base_url}}"], "path": ["integrations", "slack"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {"method": "GET", "url": {"raw": "https://www.air-cargo.io/health", "host": ["https://www.air-cargo.io"], "path": ["health"]}}
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {"key": "base_url", "value": "https://www.air-cargo.io/api"},
+    {"key": "token", "value": "your-api-key"},
+    {"key": "shipment_id", "value": "your-shipment-uuid"},
+    {"key": "webhook_id", "value": "your-webhook-uuid"}
+  ]
+}
