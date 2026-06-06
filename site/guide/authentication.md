@@ -39,5 +39,5 @@ Authentication method doesn't affect rate limits — they're based on your plan 
 |------|-----------|
 | Free | 10 req/min |
 | Starter | 60 req/min |
-| Pro | 300 req/min |
+| Pro | 120 req/min |
 | Enterprise | Custom |

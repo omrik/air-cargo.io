@@ -8,7 +8,7 @@ Rate limits are applied per API key (or per JWT session) and depend on your plan
 |------|-----------|-------|
 | Free | 10 requests/min | 10 |
 | Starter | 60 requests/min | 60 |
-| Pro | 300 requests/min | 300 |
+| Pro | 120 requests/min | 120 |
 | Enterprise | Custom | Custom |
 
 ## Headers
