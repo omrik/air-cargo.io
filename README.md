@@ -1,52 +1,40 @@
-# air-cargo.io
+# Airtrack developer portal
 
-Developer portal for the [Airtrack](https://www.air-cargo.io) air cargo tracking API.
+Documentation, SDK and integration templates for the [Airtrack](https://www.air-cargo.io) air cargo tracking API.
 
-**Track shipments across 80+ airlines** — DHL, Emirates, Turkish Cargo, Qatar Airways, Lufthansa, and more.
-
-## What's Here
+**Docs: https://docs.air-cargo.io**
 
 | Directory | Contents |
 |-----------|----------|
-| `site/` | [VitePress](https://vitepress.dev) documentation site — guides, API reference, SDK docs |
-| `sdks/python/` | Official [Python SDK](https://pypi.org/project/airtrack/) — `pip install airack` |
-| `integrations/` | Integration templates (Slack, n8n, Zapier, Make) |
-| `postman/` | Ready-to-import [Postman collection](postman/airtrack.postman_collection.json) |
-| `.github/workflows/` | CI/CD: deploy docs to GitHub Pages, sync OpenAPI spec daily |
+| `site/` | [VitePress](https://vitepress.dev) documentation site, published to docs.air-cargo.io by GitHub Pages |
+| `sdks/python/` | Python SDK |
+| `integrations/` | n8n workflow template |
+| `postman/` | Postman collection |
 
 ## Quickstart
 
 ```bash
-# 1. Get an API key from https://www.air-cargo.io
-
-# 2. Create a shipment
+# Create an API key in the dashboard at https://www.air-cargo.io, then:
 curl -X POST https://www.air-cargo.io/api/shipments/ \
-  -H "Authorization: Bearer <your-api-key>" \
+  -H "Authorization: Bearer $AIRTRACK_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"awb": "235-12345678"}'
-
-# 3. Trigger tracking
-curl -X POST "https://www.air-cargo.io/api/tracking/?shipment_id=<id>" \
-  -H "Authorization: Bearer <your-api-key>"
+  -d '{"awb": "176-12345675"}'
 ```
 
 ## Python SDK
 
 ```bash
-pip install airack
+pip install "git+https://github.com/omrik/air-cargo.io.git#subdirectory=sdks/python"
 ```
 
 ```python
-from airack import Client
+from airtrack import Client
 
 client = Client(api_key="your-api-key")
-shipment = client.shipments.create("235-12345678")
-print(shipment.status)
+shipment = client.shipments.create("176-12345675")
+for event in client.tracking.get(shipment.id):
+    print(event.iata_code, event.location, event.timestamp)
 ```
-
-## Documentation
-
-Full docs at **https://air-cargo.github.io/air-cargo.io**
 
 ## License
 

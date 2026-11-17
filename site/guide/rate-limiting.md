@@ -1,39 +1,43 @@
-# Rate Limiting
+# Rate limiting
 
-Rate limits are applied per API key (or per JWT session) and depend on your plan.
+Requests are counted per account over a rolling minute. API keys and dashboard sessions of the same account share one count.
 
-## Limits by Plan
+| Plan | Requests per minute |
+|------|---------------------|
+| Free | 30 |
+| Starter | 120 |
+| Pro | 300 |
+| Enterprise | Custom |
 
-| Plan | Rate Limit | Burst |
-|------|-----------|-------|
-| Free | 10 requests/min | 10 |
-| Starter | 60 requests/min | 60 |
-| Pro | 120 requests/min | 120 |
-| Enterprise | Custom | Custom |
+Requests without a valid token are limited to 60 per minute per IP address.
 
 ## Headers
 
-Every response includes rate limit headers:
+Every response carries:
 
 ```
-X-RateLimit-Limit: 60
-X-RateLimit-Remaining: 42
-X-RateLimit-Reset: 1705320000
+X-RateLimit-Limit: 120
+X-RateLimit-Remaining: 87
+X-RateLimit-Reset: 1794948099
 ```
 
-## Handling Rate Limits
+`X-RateLimit-Reset` is a Unix time in seconds.
 
-When you exceed your limit, the API returns `429 Too Many Requests`:
+## When you go over
+
+The API answers `429 Too Many Requests`:
 
 ```json
 {
-  "detail": "Rate limit exceeded. Try again in 18 seconds."
+  "detail": "Rate limit exceeded. Try again shortly.",
+  "rate_limit": { "limit": 120, "remaining": 0, "reset": 1794948099 }
 }
 ```
 
-## Best Practices
+Wait until `reset`, then continue.
 
-1. **Cache responses** — Avoid duplicate API calls for the same shipment within short time windows
-2. **Batch operations** — Use the batch AWB create endpoint instead of individual calls
-3. **Use webhooks** — Instead of polling, subscribe to status changes
-4. **Respect Retry-After** — If you get a 429, wait for the time specified in the response before retrying
+## Tips
+
+- Use [webhooks](/guide/webhooks) instead of polling for changes.
+- Add many AWBs with one `POST /api/shipments/batch` call (up to 100).
+- Don't call `POST /api/tracking/` in a loop: Airtrack already checks on a schedule.

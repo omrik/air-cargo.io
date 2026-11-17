@@ -1,57 +1,61 @@
 # Errors
 
-All API errors return a consistent JSON structure:
+Errors return a JSON body with `detail`. It is usually a message:
 
 ```json
-{
-  "detail": "Error description"
-}
+{ "detail": "Shipment not found" }
 ```
 
-## HTTP Status Codes
+For some errors it is an object or a list with more information (see below).
+
+## Status codes
 
 | Code | Meaning |
 |------|---------|
-| 400 | Bad Request — invalid input |
-| 401 | Unauthorized — missing or invalid token |
-| 403 | Forbidden — insufficient permissions |
-| 404 | Not Found — resource doesn't exist |
-| 409 | Conflict — duplicate resource (e.g., duplicate AWB) |
-| 429 | Too Many Requests — rate limit exceeded |
-| 500 | Internal Server Error |
+| 400 | Bad request, for example an empty or oversized batch |
+| 401 | Missing or invalid API key or token |
+| 403 | Not allowed, for example the plan's shipment limit is reached |
+| 404 | Not found, or not yours |
+| 409 | You already track this AWB |
+| 422 | Invalid input |
+| 429 | Rate limit exceeded |
+| 5xx | Our fault. Retry with backoff. |
 
-## Common Errors
+## Examples
 
-### Invalid AWB Format
-
-```json
-{
-  "detail": "Invalid AWB format. Expected format: XXX-XXXXXXXX"
-}
-```
-
-AWB numbers use the format `CCC-NNNNNNNN` where `CCC` is a 3-digit IATA prefix and `NNNNNNNN` is an 8-digit serial number.
-
-### Duplicate AWB
+**409: AWB already tracked**
 
 ```json
 {
-  "detail": "Shipment with AWB 235-12345678 already exists"
+  "detail": {
+    "message": "You already track AWB 176-12345675.",
+    "shipment_id": "3e959642-6876-493f-9045-633bbadb0706"
+  }
 }
 ```
 
-### Rate Limited
+**422: invalid AWB**
 
 ```json
 {
-  "detail": "Rate limit exceeded. Try again in 18 seconds."
+  "detail": "Invalid AWB number. Use 11 digits: a 3-digit airline prefix and an 8-digit serial, e.g. 235-12345675."
 }
 ```
 
-See [Rate Limiting](/guide/rate-limiting) for details.
+**422: malformed request body.** Here `detail` is a list of field errors:
 
-## Error Handling Best Practices
+```json
+{
+  "detail": [
+    { "type": "missing", "loc": ["body", "awb"], "msg": "Field required" }
+  ]
+}
+```
 
-1. **Check HTTP status code first**, then parse `detail`
-2. **Retry with backoff** on 429 and 5xx errors
-3. **Log `detail`** for debugging non-2xx responses
+**403: plan limit**
+
+```json
+{ "detail": "Shipment limit reached (50). Upgrade your plan to add more." }
+```
+
+**429:** see [Rate limiting](/guide/rate-limiting).

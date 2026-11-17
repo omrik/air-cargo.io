@@ -1,43 +1,38 @@
 # Authentication
 
-Airtrack supports two authentication methods. Both use the `Authorization: Bearer` header.
+Every request uses the `Authorization: Bearer <token>` header. The token is either an API key or a login session token.
 
-## API Keys (Recommended for Machines)
+## API keys (for integrations)
 
-Generate API keys from the dashboard under **API Keys**.
+Create keys in the dashboard under **API Keys**, or with the API:
+
+```bash
+curl -X POST https://www.air-cargo.io/api/account/api-keys \
+  -H "Authorization: Bearer <api-key-or-session-token>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "erp-production"}'
+```
+
+The response contains `key` (48 characters). It is shown only once.
 
 ```bash
 curl -H "Authorization: Bearer <api-key>" https://www.air-cargo.io/api/shipments/
 ```
 
-- 48-character tokens
-- Can be revoked individually
-- Rate-limited per plan tier
-- Best for scripts, integrations, and automated systems
+- Keys do not expire; revoke one with `DELETE /api/account/api-keys/{id}`.
+- Use a separate key per system so you can revoke one without affecting others.
+- Requests are rate-limited by your plan; see [Rate limiting](/guide/rate-limiting).
 
-## JWT Tokens (User Sessions)
+## Session tokens
 
-JWT tokens are returned on login or registration and expire after 24 hours.
+The dashboard logs in with email and password and receives a token valid for 24 hours. Use API keys for server-to-server work.
 
 ```bash
-# Login
 curl -X POST https://www.air-cargo.io/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "password": "your-password"}'
-
-# Response includes access_token
-curl -H "Authorization: Bearer <jwt-token>" https://www.air-cargo.io/api/account/
+  -d '{"email": "you@example.com", "password": "..."}'
 ```
 
-JWT tokens are best for browser-based applications and user-facing tools.
+The response's `access_token` is used in the same `Authorization: Bearer` header.
 
-## Rate Limits
-
-Authentication method doesn't affect rate limits — they're based on your plan tier.
-
-| Plan | Rate Limit |
-|------|-----------|
-| Free | 10 req/min |
-| Starter | 60 req/min |
-| Pro | 120 req/min |
-| Enterprise | Custom |
+New accounts must confirm their email address before they can log in.
