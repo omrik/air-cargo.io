@@ -1,47 +1,27 @@
-# Make (Integromat) Integration
+# Make
 
-Connect Airtrack to Make scenarios using webhook modules.
+Start a Make scenario whenever a shipment changes.
 
-## Setup
+## Set up
 
-1. In Make, create a new scenario and add a **Webhook** module
-2. Click **Add** to generate a unique webhook URL
-3. Register the URL with Airtrack:
+1. In Make, create a scenario that starts with **Webhooks → Custom webhook**, and copy its URL.
+2. Register it with Airtrack:
 
 ```bash
 curl -X POST https://www.air-cargo.io/api/webhooks/ \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer <api-key>" \
   -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://hook.make.com/your-unique-id",
-    "events": ["status_change"]
-  }'
+  -d '{"url": "https://hook.eu1.make.com/your-id", "events": ["status_change"]}'
 ```
 
-4. Add modules after the webhook trigger to process the data
+3. Click **Redetermine data structure** in Make, then send a test: `POST /api/webhooks/{id}/test`. Make learns the fields from it.
 
-## Example Scenario
+## Example
 
 ```
-[Webhook] → [Filter: status == "EXCEPTION"]
-          → [Email: Send notification to operations team]
-          → [Slack: Post message in #alerts channel]
-          → [Google Sheets: Log exception row]
+[Custom webhook] → [Filter: shipment.status = exception]
+                 → [Email the operations team]
+                 → [Add a row to Google Sheets]
 ```
 
-## Webhook Payload
-
-The webhook sends:
-
-```json
-{
-  "event": "status_change",
-  "shipment_id": "uuid",
-  "awb": "235-12345678",
-  "old_status": "BOOKED",
-  "new_status": "IN_TRANSIT",
-  "timestamp": "2025-01-15T12:00:00Z"
-}
-```
-
-Use a **Text parser** module to extract the AWB and status, then map them to your downstream modules.
+Useful fields: `shipment.awb`, `shipment.status`, `shipment.previous_status`, `event.iata_code`, `event.location`, `event.timestamp`. See the [payload](/guide/webhooks#payload).

@@ -1,5 +1,5 @@
 {
-  "name": "Airtrack - Status Change Alert",
+  "name": "Airtrack - Exception Alert",
   "nodes": [
     {
       "parameters": {
@@ -11,16 +11,19 @@
       "name": "Airtrack Webhook",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 1,
-      "position": [250, 300]
+      "position": [
+        250,
+        300
+      ]
     },
     {
       "parameters": {
         "conditions": {
           "string": [
             {
-              "value1": "={{ $json.body.new_status }}",
+              "value1": "={{ $json.body.shipment.status }}",
               "operation": "equal",
-              "value2": "EXCEPTION"
+              "value2": "exception"
             }
           ]
         }
@@ -29,29 +32,49 @@
       "name": "Is Exception?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 1,
-      "position": [450, 300]
+      "position": [
+        450,
+        300
+      ]
     },
     {
       "parameters": {
         "fromEmail": "noreply@air-cargo.io",
-        "toEmail": "={{ $json.body.recipient_email }}",
-        "subject": "Airtrack Alert: Shipment {{ $json.body.awb }}",
-        "text": "Shipment {{ $json.body.awb }} has exception status.\n\nNew status: {{ $json.body.new_status }}\nPrevious status: {{ $json.body.old_status }}\nTimestamp: {{ $json.body.timestamp }}"
+        "toEmail": "operations@your-company.example",
+        "subject": "Airtrack: exception on AWB {{ $json.body.shipment.awb }}",
+        "text": "AWB {{ $json.body.shipment.awb }} ({{ $json.body.shipment.carrier.name }}) is in exception.\n\nPrevious status: {{ $json.body.shipment.previous_status }}\nAirline code: {{ $json.body.event.iata_code }} at {{ $json.body.event.location }}\nTime (UTC): {{ $json.body.event.timestamp }}\n{{ $json.body.event.description }}"
       },
       "id": "email-alert",
       "name": "Send Email Alert",
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 1,
-      "position": [650, 200]
+      "position": [
+        650,
+        200
+      ]
     }
   ],
   "connections": {
     "Airtrack Webhook": {
-      "main": [[{ "node": "Is Exception?", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Is Exception?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Is Exception?": {
       "main": [
-        [{ "node": "Send Email Alert", "type": "main", "index": 0 }]
+        [
+          {
+            "node": "Send Email Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   }

@@ -1,46 +1,32 @@
-# n8n Integration
+# n8n
 
-Connect Airtrack to n8n workflows using webhook nodes.
+Run an n8n workflow whenever a shipment changes.
 
-## Setup
+## Set up
 
-1. In n8n, add a **Webhook** node
-2. Set the webhook URL where Airtrack can send events
-3. Register the URL with Airtrack:
+1. In n8n, add a **Webhook** node with method `POST`, and copy its production URL.
+2. Register it with Airtrack, choosing the events you want:
 
 ```bash
 curl -X POST https://www.air-cargo.io/api/webhooks/ \
-  -H "Authorization: Bearer <token>" \
+  -H "Authorization: Bearer <api-key>" \
   -H "Content-Type: application/json" \
-  -d '{
-    "url": "https://your-n8n-instance/webhook/airtrack",
-    "events": ["status_change"]
-  }'
+  -d '{"url": "https://your-n8n.example/webhook/airtrack", "events": ["shipment.exception", "shipment.delivered"]}'
 ```
 
-4. Add any node after the Webhook trigger to process the shipment update (send email, update spreadsheet, etc.)
+3. Send a test with `POST /api/webhooks/{id}/test` and use it to map fields in the next nodes.
 
-## Example Workflow
+The fields are under `$json.body`, for example `$json.body.shipment.awb`, `$json.body.shipment.status`, `$json.body.event.iata_code` and `$json.body.event.location`. See the [payload](/guide/webhooks#payload).
+
+## Example
 
 ```
-[Webhook] → [IF status == EXCEPTION] → [Send Email Alert]
-                                     → [Slack Message]
-                                     → [Update Google Sheet]
+[Webhook] → [IF shipment.status = exception] → [Send email to operations]
+                                             → [Post to Slack]
 ```
 
-## AWB Format Check (Function Node)
+## Template
 
-```javascript
-const awb = $json.body.awb;
-const pattern = /^\d{3}-\d{8}$/;
-if (!pattern.test(awb)) {
-  throw new Error(`Invalid AWB: ${awb}`);
-}
-return { awb, status: $json.body.new_status };
-```
+Import [airtrack-n8n-workflow.json](/integrations/n8n-template.json): a webhook node, an exception check and an email alert. Set your SMTP credentials and recipient after importing.
 
-## Download
-
-Download the ready-to-import n8n workflow template:
-
-- [airtrack-n8n-workflow.json](/air-cargo.io/integrations/n8n-template.json)
+For signature checks in n8n, compute the HMAC-SHA256 of the raw body in a **Crypto** node and compare it with the `X-Webhook-Signature` header.

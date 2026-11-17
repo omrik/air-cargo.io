@@ -5,6 +5,9 @@ on:
     - cron: '0 6 * * *'  # daily at 06:00 UTC
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
@@ -12,23 +15,16 @@ jobs:
       - uses: actions/checkout@v4
       - name: Fetch OpenAPI spec
         run: |
-          curl -s https://www.air-cargo.io/openapi.json \
-            -o site/api/openapi.json \
-            || echo "Direct fetch failed, trying alternate path"
-          curl -s https://www.air-cargo.io/api/openapi.json \
-            -o site/api/openapi.json \
-            || echo "Alternate fetch also failed"
-      - name: Check for changes
-        id: diff
+          curl -sf https://www.air-cargo.io/api/openapi.json -o /tmp/openapi.json
+          # Only accept a real spec, never an error page.
+          python3 -c "import json; d = json.load(open('/tmp/openapi.json')); assert d['openapi'].startswith('3') and d['paths']"
+          python3 -c "import json; json.dump(json.load(open('/tmp/openapi.json')), open('site/api/openapi.json', 'w'), indent=1, sort_keys=True)"
+      - name: Commit if changed
         run: |
           if git diff --quiet site/api/openapi.json; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "No changes"
+            exit 0
           fi
-      - name: Commit if changed
-        if: steps.diff.outputs.changed == 'true'
-        run: |
           git config user.name "openapi-sync[bot]"
           git config user.email "openapi-sync@air-cargo.io"
           git add site/api/openapi.json

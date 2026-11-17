@@ -1,0 +1,81 @@
+{
+  "name": "Airtrack - Exception Alert",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "airtrack-webhook",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Airtrack Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.shipment.status }}",
+              "operation": "equal",
+              "value2": "exception"
+            }
+          ]
+        }
+      },
+      "id": "filter-exception",
+      "name": "Is Exception?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "noreply@air-cargo.io",
+        "toEmail": "operations@your-company.example",
+        "subject": "Airtrack: exception on AWB {{ $json.body.shipment.awb }}",
+        "text": "AWB {{ $json.body.shipment.awb }} ({{ $json.body.shipment.carrier.name }}) is in exception.\n\nPrevious status: {{ $json.body.shipment.previous_status }}\nAirline code: {{ $json.body.event.iata_code }} at {{ $json.body.event.location }}\nTime (UTC): {{ $json.body.event.timestamp }}\n{{ $json.body.event.description }}"
+      },
+      "id": "email-alert",
+      "name": "Send Email Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        650,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "Airtrack Webhook": {
+      "main": [
+        [
+          {
+            "node": "Is Exception?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Exception?": {
+      "main": [
+        [
+          {
+            "node": "Send Email Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

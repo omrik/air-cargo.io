@@ -1,33 +1,31 @@
 # Airtrack Python SDK
 
-Official Python client for the [air-cargo.io](https://www.air-cargo.io) air cargo tracking API.
+Python client for the [Airtrack](https://www.air-cargo.io) air cargo tracking API.
 
 ## Installation
 
 ```bash
-# From PyPI (when available)
-pip install airack
-
-# Or directly from GitHub
-pip install git+https://github.com/omrik/air-cargo.io.git#subdirectory=sdks/python
+pip install "git+https://github.com/omrik/air-cargo.io.git#subdirectory=sdks/python"
 ```
+
+The package is not on PyPI yet.
 
 ## Quickstart
 
 ```python
-from airack import Client
+from airtrack import Client, ConflictError
 
 client = Client(api_key="your-api-key")
 
-# Create a shipment
-shipment = client.shipments.create("235-12345678")
-print(f"Tracking {shipment.awb} — {shipment.status}")
+try:
+    shipment = client.shipments.create("176-12345675")
+except ConflictError as e:
+    shipment = client.shipments.get(e.detail["shipment_id"])  # already tracked
 
-# List shipments
-for s in client.shipments.list(status="IN_TRANSIT"):
-    print(s.awb, s.carrier_name)
+for event in client.tracking.get(shipment.id):
+    print(event.timestamp, event.iata_code, event.location, event.description)
 ```
 
 ## Documentation
 
-Full documentation at [https://air-cargo.github.io/air-cargo.io](https://air-cargo.github.io/air-cargo.io)
+https://docs.air-cargo.io/sdks/python

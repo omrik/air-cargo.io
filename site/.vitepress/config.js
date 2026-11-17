@@ -1,16 +1,16 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'air-cargo.io',
-  description: 'Air cargo tracking API — developer portal, SDKs, and integration guides',
-  base: '/air-cargo.io/',
+  title: 'Airtrack API',
+  description: 'Air cargo tracking API: shipments by AWB, IATA milestones, signed webhooks',
+  base: '/',
   cleanUrls: true,
   head: [
-    ['link', { rel: 'icon', href: '/air-cargo.io/favicon.svg', type: 'image/svg+xml' }],
+    ['link', { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' }],
   ],
   themeConfig: {
     logo: '/air-cargo-logo.svg',
-    siteTitle: 'air-cargo.io',
+    siteTitle: 'Airtrack API',
     search: { provider: 'local' },
     socialLinks: [
       { icon: 'github', link: 'https://github.com/omrik/air-cargo.io' },
@@ -20,6 +20,7 @@ export default defineConfig({
       { text: 'API', link: '/api/openapi', activeMatch: '/api/' },
       { text: 'SDKs', link: '/sdks/python', activeMatch: '/sdks/' },
       { text: 'Integrations', link: '/integrations/slack', activeMatch: '/integrations/' },
+      { text: 'Dashboard', link: 'https://www.air-cargo.io' },
     ],
     sidebar: {
       '/guide/': [

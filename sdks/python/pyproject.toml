@@ -1,6 +1,6 @@
 [project]
 name = "airtrack"
-version = "0.1.0"
+version = "0.2.0"
 description = "Official Python SDK for the air-cargo.io air cargo tracking API"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -24,9 +24,9 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://air-cargo.github.io/air-cargo.io"
+Homepage = "https://docs.air-cargo.io"
 Repository = "https://github.com/omrik/air-cargo.io"
-Documentation = "https://air-cargo.github.io/air-cargo.io/sdks/python"
+Documentation = "https://docs.air-cargo.io/sdks/python"
 
 [build-system]
 requires = ["setuptools>=69"]

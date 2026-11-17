@@ -1,99 +1,60 @@
 # API Reference
 
-The full OpenAPI 3.1 specification is auto-generated from the live API and synced every 24 hours.
+The complete reference is generated from the running API:
 
-- [View openapi.json](/air-cargo.io/api/openapi.json) (raw JSON)
-- [Swagger UI](https://www.air-cargo.io/docs) (interactive docs)
-- [ReDoc](https://www.air-cargo.io/redoc) (alternative viewer)
+- **[Interactive reference](https://www.air-cargo.io/api/docs)**: try calls in the browser with your API key
+- [ReDoc view](https://www.air-cargo.io/api/redoc)
+- [openapi.json](https://www.air-cargo.io/api/openapi.json): OpenAPI 3.1, for code generators
+- [Postman collection](/airtrack.postman_collection.json): import it and set `token` to your API key
 
-## Endpoints Overview
+Base URL: `https://www.air-cargo.io/api`. Authentication: `Authorization: Bearer <api-key>`.
 
-### Public (No Auth)
-
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/auth/register` | Create account |
-| POST | `/api/auth/login` | Login, get JWT |
-| GET | `/api/auth/verify` | Verify email |
-| POST | `/api/auth/resend-verification` | Resend verification |
-| GET | `/api/health` | Health check |
+## Endpoints
 
 ### Shipments
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/api/shipments/` | List shipments |
-| POST | `/api/shipments/` | Create shipment |
-| POST | `/api/shipments/batch` | Batch create shipments |
-| GET | `/api/shipments/export` | Export as CSV/JSON |
-| GET | `/api/shipments/stats` | Aggregate stats |
-| GET | `/api/shipments/trends` | Daily trends |
-| GET | `/api/shipments/{id}` | Get shipment |
-| PATCH | `/api/shipments/{id}` | Update shipment |
-| DELETE | `/api/shipments/{id}` | Delete shipment |
+| POST | `/shipments/` | Track an AWB |
+| POST | `/shipments/batch` | Track up to 100 AWBs |
+| GET | `/shipments/` | List, filter and sort |
+| GET | `/shipments/{id}` | One shipment with its events |
+| PATCH | `/shipments/{id}` | Update details |
+| DELETE | `/shipments/{id}` | Stop tracking |
+| GET | `/shipments/export` | CSV or JSON export |
+| GET | `/shipments/stats` | Counts by status |
+| GET | `/shipments/trends` | Shipments added per day |
 
 ### Tracking
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/tracking/` | Trigger tracking refresh |
-| GET | `/api/tracking/{id}` | Get tracking events |
+| POST | `/tracking/?shipment_id={id}` | Ask the airline now, or add your own event |
+| GET | `/tracking/{shipment_id}` | Event history |
 
 ### Webhooks
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/api/webhooks/` | List webhooks |
-| POST | `/api/webhooks/` | Register webhook |
-| PATCH | `/api/webhooks/{id}` | Toggle active/inactive |
-| DELETE | `/api/webhooks/{id}` | Delete webhook |
-| GET | `/api/webhooks/{id}/logs` | Delivery logs |
+| POST | `/webhooks/` | Register an endpoint |
+| GET | `/webhooks/` | List, with delivery state |
+| PATCH | `/webhooks/{id}` | Pause, or change URL or events |
+| DELETE | `/webhooks/{id}` | Delete |
+| POST | `/webhooks/{id}/test` | Send a signed sample |
+| GET | `/webhooks/{id}/logs` | Recent deliveries |
 
-### Account
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/account/` | Get profile |
-| PATCH | `/api/account/profile` | Update profile |
-| POST | `/api/account/change-password` | Change password |
-| POST | `/api/account/api-keys` | Create API key |
-| GET | `/api/account/api-keys` | List API keys |
-| DELETE | `/api/account/api-keys/{id}` | Revoke API key |
-
-### Carriers
+### Account and reference data
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/api/carriers/` | List carriers |
+| GET | `/account/` | Your plan, limits and usage |
+| GET | `/account/api-keys` | List API keys |
+| POST | `/account/api-keys` | Create an API key |
+| DELETE | `/account/api-keys/{id}` | Revoke an API key |
+| GET | `/carriers/` | Airlines and their AWB prefixes |
+| GET | `/integrations/slack` | Slack notification settings |
+| PUT | `/integrations/slack` | Connect a Slack incoming webhook |
+| DELETE | `/integrations/slack` | Disconnect Slack |
+| POST | `/integrations/slack/test` | Send a test Slack message |
 
-### Integrations
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/integrations/slack` | Get Slack status |
-| PUT | `/api/integrations/slack` | Set Slack webhook |
-| DELETE | `/api/integrations/slack` | Remove Slack |
-| POST | `/api/integrations/slack/test` | Test notification |
-
-### Billing
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/billing/plans` | List plans |
-| POST | `/api/billing/create-checkout-session` | Create checkout |
-| POST | `/api/billing/create-portal-session` | Customer portal |
-| GET | `/api/billing/subscription` | Get subscription |
-
-### Admin
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/admin/check` | Verify admin |
-| GET | `/api/admin/users` | List users |
-| GET | `/api/admin/users/{id}` | Get user |
-| PATCH | `/api/admin/users/{id}` | Update user |
-| GET | `/api/admin/stats` | Platform stats |
-| GET | `/api/admin/scraping/stats` | Scrape stats |
-| GET | `/api/admin/scraping/failed` | Failed scrapes |
-| GET | `/api/admin/settings` | Get settings |
-| PATCH | `/api/admin/settings` | Update settings |
+Health check (no auth): `GET https://www.air-cargo.io/health`.
