@@ -22,11 +22,14 @@ Events carry the airline's IATA Cargo-IMP status code in `iata_code`:
 | Code | Description | Status |
 |------|-------------|--------|
 | `BKD` | Booked | `booked` |
+| `FWB` | Electronic air waybill received | `accepted` |
 | `FOH` | Freight on hand | `accepted` |
 | `RCS` | Received from shipper | `accepted` |
 | `RCT` | Received from another airline | `accepted` |
 | `PRE` | Prepared for loading | `accepted` |
 | `MAN` | Manifested on a flight | `accepted` |
+| `CLD` | Loaded on a flight | `accepted` |
+| `PDD` | Customs pre-declaration sent | `accepted` |
 | `DEP` | Departed | `in_transit` |
 | `TFD` | Transferred to another flight or airline | `in_transit` |
 | `ARR` | Arrived | `landed` (`in_transit` at a transit airport) |
@@ -36,11 +39,23 @@ Events carry the airline's IATA Cargo-IMP status code in `iata_code`:
 | `AWD` | Documents delivered to consignee | `landed` |
 | `CRC` | Reported to customs | `landed` |
 | `CCD` | Cleared by customs | `landed` |
+| `CLC` | Cleared by customs | `landed` |
 | `TRM` | To be transferred to another airline | `landed` |
 | `DLV` | Delivered | `delivered` |
 | `DIS` | Discrepancy | `exception` |
+| `SOH` | Shipment on hold | `exception` |
+| `OFF` | Offloaded from a flight | `exception` |
 
-Which codes you receive depends on the airline: some publish every step, others only departures and arrivals.
+Which codes you receive depends on the airline: some publish every step, others only departures and arrivals. A code not in this table (for example `TPL`, a temperature log) is passed through as the airline sent it, and its event keeps the shipment's current status.
+
+Events you add yourself without a code, and events from a few older airline sources that publish no codes, get the code that matches their status (`BKD`, `RCS`, `DEP`, `ARR`, `DLV` or `DIS`).
+
+### Reading milestones
+
+- **Delivery.** Only `DLV` means the goods were handed over, and only `DLV` sets a shipment to `delivered`. `NFD` (consignee notified) and `AWD` (documents delivered) come before it, while the goods still wait at the airport.
+- **Actual times.** Use `DEP` for the actual departure and `ARR` for the actual arrival. `MAN`, `RCF` and the other codes have their own times.
+- **Split lines.** An airline reports a split shipment as several events with the same code, airport and time and different `pieces`, for example `RCF` with 4 pieces and `RCF` with 5. These are separate events, not duplicates. Use `id` to tell events apart.
+- **Sources.** One milestone is stored once. If both the airline's own tracking and the partner network report it, the second report is recognised as the same event and is not sent again.
 
 ## Refresh now
 
