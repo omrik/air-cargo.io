@@ -111,6 +111,7 @@ Airtrack asks airlines for updates on a schedule. Airlines don't push to us.
 | Booked, accepted, in transit | Every 30 minutes |
 | Landed or exception, waiting for delivery | Every 3 hours, for up to 14 days |
 | Delivered | No longer checked |
+| Archived | Not checked; see [Archive](/guide/shipments#archive) |
 
 For airlines tracked through the partner network, a shipment is asked at most every 2 hours (3 hours when there was no data, 6 hours once landed).
 
